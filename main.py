@@ -4,6 +4,8 @@ import tweepy
 import configparser
 import googleapiclient.discovery
 
+from pprint import pprint
+
 
 config = configparser.ConfigParser()
 config.read("creds.ini")
@@ -24,13 +26,15 @@ def gcse_api():
 
 def get_image(gcse, search, filename):
     res = gcse.cse().list(q=search, num=1, searchType="image", cx=config["gcse"]["id"]).execute()
-    download_image(res["items"][0]["link"], "tmp")
+    pprint(res)
+    download_image(res["items"][0]["link"], filename)
 
 
 def download_image(url, filename):
     req = requests.get(url, stream=True)
     if req.status_code == 200:
         with open(filename, "wb") as image:
+            print("creating file {}".format(filename))
             for chunk in req:
                 image.write(chunk)
     else:
@@ -38,12 +42,12 @@ def download_image(url, filename):
 
 
 def tweet_image(twitter, filepath, message):
-    upl_resp = twitter.media_upload(filename)
-    twitter.upload_status(message, media_ids=[upl_resp.media_id_string])
+    upl_resp = twitter.media_upload(filepath)
+    twitter.update_status(message, media_ids=[upl_resp.media_id_string])
 
 
 if __name__ == "__main__":
     twitter = twitter_api()
     gcse = gcse_api()
-    get_image(gcse, "pink guy", "tmp")
-    tweet_image(twitter, "tmp", "uoais c alapaca fantom testt")
+    get_image(gcse, "pink", "tmp.jpg")
+    tweet_image(twitter, "tmp.jpg", "uoais c alapaca fantom testt")
