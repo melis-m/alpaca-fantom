@@ -1,9 +1,9 @@
-import sys
 import requests
 import tweepy
 import configparser
 import googleapiclient.discovery
 import random
+import time
 from adjectives import adjectives
 from nouns import nouns
 
@@ -28,10 +28,16 @@ def gcse_api():
 
 
 def get_image(gcse, search, filename):
-    res = gcse.cse().list(q=search, num=1,
+    res = gcse.cse().list(q=search, num=10,
                           searchType="image",
                           cx=config["gcse"]["id"]).execute()
-    download_image(res["items"][0]["link"], filename)
+    while 1:
+        try:
+            download_image(res["items"][0]["link"], filename)
+        except RuntimeError as e:
+            print("{}, trying next result".format(e))
+        else:
+            break
 
 
 def download_image(url, filename):
@@ -41,7 +47,7 @@ def download_image(url, filename):
             for chunk in req:
                 image.write(chunk)
     else:
-        print("Unable to download file {}".format(url), file=sys.stderr)
+        raise RuntimeError("Couldn't download file {}".format(filename))
 
 
 def tweet_image(twitter, filepath, message):
@@ -49,11 +55,23 @@ def tweet_image(twitter, filepath, message):
     twitter.update_status(message, media_ids=[upl_resp.media_id_string])
 
 
+def run(twitter, gcse):
+    adj = adjectives[random.randrange(28479)]
+    noun = nouns[random.randrange(4554)]
+    query = "{} {}".format(adj, noun)
+    print(query)
+    try:
+        get_image(gcse, query, "tmp.jpg")
+    except KeyError:
+        print("No result for {}".format(query))
+    else:
+        pass
+        # tweet_image(twitter, "tmp.jpg", sys.argv[2])
+
+
 if __name__ == "__main__":
     twitter = twitter_api()
     gcse = gcse_api()
-    adj = adjectives[random.randrange(28479)]
-    noun = nouns[random.randrange(4554)]
-    print("{} {}".format(adj, noun))
-    get_image(gcse, "{} {}".format(adj, noun), "tmp.jpg")
-    # tweet_image(twitter, "tmp.jpg", sys.argv[2])
+    while True:
+        run(twitter, gcse)
+        time.sleep(60 * 60 * 6)
