@@ -62,7 +62,7 @@ def run(twitter, gcse):
     filename1 = "tmp1.jpg"
     q1 = "fantom alpaca"
     while True:
-        q2 = "{} {}".format(adjectives[random.randrange(26622)],
+        q2 = "{} {}".format(adjectives[random.randrange(1685)],
                             nouns[random.randrange(4567)])
         print("new query: {}".format(q2))
         try:
@@ -73,7 +73,6 @@ def run(twitter, gcse):
         tweet_image(twitter, filename1, q2)
         print("tweeting image [{} ({})] with msg [{}]".format(filename1, q1, q2))
         os.rename(filename2, filename1)
-        # filename1 = filename2
         q1 = q2
         time.sleep(10)
 
