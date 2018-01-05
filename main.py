@@ -3,7 +3,12 @@ import requests
 import tweepy
 import configparser
 import googleapiclient.discovery
+import random
+from adjectives import adjectives
+from nouns import nouns
 
+
+from pprint import pprint
 
 config = configparser.ConfigParser()
 config.read("creds.ini")
@@ -23,7 +28,9 @@ def gcse_api():
 
 
 def get_image(gcse, search, filename):
-    res = gcse.cse().list(q=search, num=1, searchType="image", cx=config["gcse"]["id"]).execute()
+    res = gcse.cse().list(q=search, num=1,
+                          searchType="image",
+                          cx=config["gcse"]["id"]).execute()
     download_image(res["items"][0]["link"], filename)
 
 
@@ -45,5 +52,8 @@ def tweet_image(twitter, filepath, message):
 if __name__ == "__main__":
     twitter = twitter_api()
     gcse = gcse_api()
-    get_image(gcse, "pink", "tmp.jpg")
-    tweet_image(twitter, "tmp.jpg", "uoais c alapaca fantom testt")
+    adj = adjectives[random.randrange(28479)]
+    noun = nouns[random.randrange(4554)]
+    print("{} {}".format(adj, noun))
+    get_image(gcse, "{} {}".format(adj, noun), "tmp.jpg")
+    # tweet_image(twitter, "tmp.jpg", sys.argv[2])
