@@ -74,11 +74,10 @@ def run(twitter, gcse):
         print("tweeting image [{} ({})] with msg [{}]".format(filename1, q1, q2))
         os.rename(filename2, filename1)
         q1 = q2
-        time.sleep(10)
+        time.sleep(60 * 60 * 3)
 
 
 if __name__ == "__main__":
     twitter = twitter_api()
     gcse = gcse_api()
     run(twitter, gcse)
-    # time.sleep(60 * 60 * 6)
