@@ -63,7 +63,7 @@ def run(twitter, gcse):
     q1 = "fantom alpaca"
     while True:
         q2 = "{} {}".format(adjectives[random.randrange(26622)],
-                            nouns[random.randrange(4554)])
+                            nouns[random.randrange(4567)])
         print("new query: {}".format(q2))
         try:
             get_image(gcse, q2, filename2)
