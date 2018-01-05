@@ -1,3 +1,5 @@
+import os
+import sys
 import requests
 import tweepy
 import configparser
@@ -31,9 +33,9 @@ def get_image(gcse, search, filename):
     res = gcse.cse().list(q=search, num=10,
                           searchType="image",
                           cx=config["gcse"]["id"]).execute()
-    while 1:
+    for item in res["items"]:
         try:
-            download_image(res["items"][0]["link"], filename)
+            download_image(item["link"], "{}".format(filename))
         except RuntimeError as e:
             print("{}, trying next result".format(e))
         else:
@@ -52,26 +54,32 @@ def download_image(url, filename):
 
 def tweet_image(twitter, filepath, message):
     upl_resp = twitter.media_upload(filepath)
-    twitter.update_status(message, media_ids=[upl_resp.media_id_string])
+    resp = twitter.update_status(message, media_ids=[upl_resp.media_id_string])
 
 
 def run(twitter, gcse):
-    adj = adjectives[random.randrange(28479)]
-    noun = nouns[random.randrange(4554)]
-    query = "{} {}".format(adj, noun)
-    print(query)
-    try:
-        get_image(gcse, query, "tmp.jpg")
-    except KeyError:
-        print("No result for {}".format(query))
-    else:
-        pass
-        # tweet_image(twitter, "tmp.jpg", sys.argv[2])
+    filename2 = "tmp2.jpg"
+    filename1 = "tmp1.jpg"
+    q1 = "fantom alpaca"
+    while True:
+        q2 = "{} {}".format(adjectives[random.randrange(26622)],
+                            nouns[random.randrange(4554)])
+        print("new query: {}".format(q2))
+        try:
+            get_image(gcse, q2, filename2)
+        except KeyError as e:
+            print("{}, skipping".format(e), file=sys.stderr)
+            continue
+        tweet_image(twitter, filename1, q2)
+        print("tweeting image [{} ({})] with msg [{}]".format(filename1, q1, q2))
+        os.rename(filename2, filename1)
+        # filename1 = filename2
+        q1 = q2
+        time.sleep(10)
 
 
 if __name__ == "__main__":
     twitter = twitter_api()
     gcse = gcse_api()
-    while True:
-        run(twitter, gcse)
-        time.sleep(60 * 60 * 6)
+    run(twitter, gcse)
+    # time.sleep(60 * 60 * 6)
