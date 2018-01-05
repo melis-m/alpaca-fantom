@@ -56,7 +56,7 @@ def tweet_image(twitter, filepath, message):
 
 
 def run(twitter, gcse):
-    adj = adjectives[random.randrange(28479)]
+    adj = adjectives[random.randrange(1684)]
     noun = nouns[random.randrange(4554)]
     query = "{} {}".format(adj, noun)
     print(query)
