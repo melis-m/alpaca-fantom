@@ -4,8 +4,6 @@ import tweepy
 import configparser
 import googleapiclient.discovery
 
-from pprint import pprint
-
 
 config = configparser.ConfigParser()
 config.read("creds.ini")
@@ -26,7 +24,6 @@ def gcse_api():
 
 def get_image(gcse, search, filename):
     res = gcse.cse().list(q=search, num=1, searchType="image", cx=config["gcse"]["id"]).execute()
-    pprint(res)
     download_image(res["items"][0]["link"], filename)
 
 
@@ -34,7 +31,6 @@ def download_image(url, filename):
     req = requests.get(url, stream=True)
     if req.status_code == 200:
         with open(filename, "wb") as image:
-            print("creating file {}".format(filename))
             for chunk in req:
                 image.write(chunk)
     else:
