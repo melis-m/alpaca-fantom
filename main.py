@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 import requests
@@ -37,7 +38,7 @@ def get_image(gcse, search, filename):
         try:
             download_image(item["link"], "{}".format(filename))
         except RuntimeError as e:
-            print("{}, trying next result".format(e))
+            logging.warning("{}, trying next result".format(e))
         else:
             break
 
@@ -64,20 +65,23 @@ def run(twitter, gcse):
     while True:
         q2 = "{} {}".format(adjectives[random.randrange(1684)],
                             nouns[random.randrange(4566)])
-        print("new query: {}".format(q2))
+        logging.info("new query: {}".format(q2))
         try:
             get_image(gcse, q2, filename2)
         except KeyError as e:
-            print("{}, skipping".format(e), file=sys.stderr)
+            logging.warning("{}, skipping".format(e), file=sys.stderr)
             continue
         tweet_image(twitter, filename1, q2)
-        print("tweeting image [{} ({})] with msg [{}]".format(filename1, q1, q2))
+        logging.info("tweeting image [{} ({})] with msg [{}]".format(filename1, q1, q2))
         os.rename(filename2, filename1)
         q1 = q2
         time.sleep(60 * 60 * 3)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(filename="log",
+                        format="%(asctime)s %(levelname)s:  %(message)s",
+                        level=logging.DEBUG)
     twitter = twitter_api()
     gcse = gcse_api()
     run(twitter, gcse)
