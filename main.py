@@ -11,10 +11,14 @@ from adjectives import adjectives
 from nouns import nouns
 
 
-from pprint import pprint
-
 config = configparser.ConfigParser()
 config.read("creds.ini")
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler("log")
+handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s: %(message)s"))
+logger.addHandler(handler)
 
 
 def twitter_api():
@@ -38,7 +42,7 @@ def get_image(gcse, search, filename):
         try:
             download_image(item["link"], "{}".format(filename))
         except RuntimeError as e:
-            logging.warning("{}, trying next result".format(e))
+            logger.warning("{}, trying next result".format(e))
         else:
             break
 
@@ -65,23 +69,20 @@ def run(twitter, gcse):
     while True:
         q2 = "{} {}".format(adjectives[random.randrange(1684)],
                             nouns[random.randrange(4566)])
-        logging.info("new query: {}".format(q2))
+        logger.info("new query: {}".format(q2))
         try:
             get_image(gcse, q2, filename2)
         except KeyError as e:
-            logging.warning("{}, skipping".format(e), file=sys.stderr)
+            logger.warning("{}, skipping".format(e), file=sys.stderr)
             continue
         tweet_image(twitter, filename1, q2)
-        logging.info("tweeting image [{} ({})] with msg [{}]".format(filename1, q1, q2))
+        logger.info("tweeting image [{} ({})] with msg [{}]".format(filename1, q1, q2))
         os.rename(filename2, filename1)
         q1 = q2
         time.sleep(60 * 60 * 3)
 
 
 if __name__ == "__main__":
-    logging.basicConfig(filename="log",
-                        format="%(asctime)s %(levelname)s:  %(message)s",
-                        level=logging.DEBUG)
     twitter = twitter_api()
     gcse = gcse_api()
     run(twitter, gcse)
