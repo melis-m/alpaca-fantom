@@ -37,6 +37,7 @@ def gcse_api():
 def get_image(gcse, search, filename):
     res = gcse.cse().list(q=search, num=10,
                           searchType="image",
+                          fileType="jpg",
                           cx=config["gcse"]["id"]).execute()
     for item in res["items"]:
         try:
@@ -59,7 +60,7 @@ def download_image(url, filename):
 
 def tweet_image(twitter, filepath, message):
     upl_resp = twitter.media_upload(filepath)
-    resp = twitter.update_status(message, media_ids=[upl_resp.media_id_string])
+    twitter.update_status(message, media_ids=[upl_resp.media_id_string])
 
 
 def run(twitter, gcse):
@@ -83,6 +84,9 @@ def run(twitter, gcse):
 
 
 if __name__ == "__main__":
-    twitter = twitter_api()
-    gcse = gcse_api()
-    run(twitter, gcse)
+    try:
+        twitter = twitter_api()
+        gcse = gcse_api()
+        run(twitter, gcse)
+    except Exception as e:
+        logger.error(e)
