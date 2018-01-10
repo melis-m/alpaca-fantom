@@ -74,7 +74,7 @@ def run(twitter, gcse):
         try:
             get_image(gcse, q2, filename2)
         except KeyError as e:
-            logger.warning("{}, skipping".format(e), file=sys.stderr)
+            logger.warning("{}, skipping".format(e))
             continue
         tweet_image(twitter, filename1, q2)
         logger.info("tweeting image [{} ({})] with msg [{}]".format(filename1, q1, q2))
@@ -84,9 +84,10 @@ def run(twitter, gcse):
 
 
 if __name__ == "__main__":
-    try:
-        twitter = twitter_api()
-        gcse = gcse_api()
-        run(twitter, gcse)
-    except Exception as e:
-        logger.error(e)
+    while True:
+        try:
+            twitter = twitter_api()
+            gcse = gcse_api()
+            run(twitter, gcse)
+        except Exception as e:
+            logger.error(e)
